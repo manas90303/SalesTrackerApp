@@ -1,0 +1,22 @@
+workflows:
+  build-apk:
+    name: Build APK
+    max_build_duration: 15
+    environment:
+      vars:
+        PACKAGE_NAME: "com.zifto.salestracker"
+      java: 17
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+      - name: Build APK
+        script: ./gradlew assembleDebug
+      - name: Post APK to Make.com webhook
+        script: |
+          curl -X POST https://hook.us2.make.com/7f7f45adu6swsplqlyil1u0ooaor9rak \
+          -F "device_id=salesperson-1" \
+          -F "apk_file=@app/build/outputs/apk/debug/app-debug.apk"
+    artifacts:
+      - app/build/outputs/**/*.apk
+
